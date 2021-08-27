@@ -1,22 +1,24 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import Stellar from 'stellar-sdk'
-import { getDistributionAccount, getUser } from '../Mongo';
-import { runTransaction } from '../Node/makeTx';
+import { deleteOfferRequest, getDistributionAccount, getUser } from '../Mongo';
+import { runOfferTransaction, runTransaction } from '../Node/makeTx';
 
 const OfferRequest = (props) => {
     const { offerRequest, user } = props;
 
-    const makeTransaction = async (buyer, assetName, index, amount) => {
+    const makeTransaction = async (buyer, assetName, amount) => {
         const [issuerAccount] = await getUser(user.email.split("@")[0])
-        const [recAccount] = await getUser(offerRequest[index].buyer);
+        const [recAccount] = await getUser(buyer);
+        console.log(recAccount)
         const ownerId = issuerAccount._id.toString();
-        const [distributionAccount] = await getDistributionAccount("", ownerId)
+        const [distributionAccount] = await getDistributionAccount(assetName, ownerId)
         console.log(distributionAccount)
         const asset = new Stellar.Asset(assetName, issuerAccount.publicKey)
         console.log(issuerAccount, recAccount, amount)
-        const transaction = await runTransaction(distributionAccount, recAccount, asset, amount)
+        const transaction = await runOfferTransaction(issuerAccount, distributionAccount, recAccount, asset, amount)
         console.log("success", transaction)
+        await deleteOfferRequest(assetName, buyer)
 
     }
 
@@ -52,8 +54,8 @@ const OfferRequest = (props) => {
                                                     <td scope="row">{item.buyer}</td>
                                                     <td>{item.asset}</td>
                                                     <td>{item.price}</td>
-                                                    <td><button type="button" className="btn btn-primary" >Confirm</button></td>
-                                                    <td><button type="button" className="btn btn-danger" onClick={() => makeTransaction(item.buyer, item.asset, index, item.amount)}>Reject</button></td>
+                                                    <td><button type="button" className="btn btn-primary" onClick={() => makeTransaction(item.buyer, item.asset, item.amount)}>Confirm</button></td>
+                                                    <td><button type="button" className="btn btn-danger" onClick={async () => await deleteOfferRequest(item.asset, item.buyer)}>Reject</button></td>
                                                 </tr>
 
                                             </>

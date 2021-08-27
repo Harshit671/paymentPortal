@@ -60,6 +60,21 @@ export const getOfferRequest = async (userName) => {
     return data;
 }
 
+export const deleteOfferRequest = async (assetName, buyer) => {
+    const credentials = Realm.Credentials.anonymous();
+    const user = await app.logIn(credentials);
+    const mongodb = app.currentUser.mongoClient("mongodb-atlas")
+    const dbcc = mongodb.db("harshit").collection("offers");
+    const query = { "asset": assetName, "buyer": buyer }
+    const data = await dbcc.deleteOne(query)
+        .then(result => {
+            return result
+        }).catch(err => console.error(`Failed to insert item: ${err}`))
+    return data;
+}
+
+
+
 
 export const addDistributionAccount = async (assetName, publicKey, privateKey, owner) => {
     const credentials = Realm.Credentials.anonymous();
@@ -91,12 +106,13 @@ export const getDistributionAccount = async (assetName, ownerId) => {
     const mongodb = app.currentUser.mongoClient("mongodb-atlas")
     const dbcc = mongodb.db("harshit").collection("payment");
     const ownerIdString = ownerId.toString();
-    const query = assetName ? {
+    const query = assetName !== "" ? {
         "assetName": assetName,
         "owner": ownerIdString
     } : {
         "owner": ownerIdString
     }
+    console.log(query)
     const data = await dbcc.find(query)
         .then(result => {
             return result;

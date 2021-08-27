@@ -9,6 +9,7 @@ import MakeOffer from './components/MakeOffer';
 import OfferList from './components/OfferList';
 import AllOffers from './components/AllOffers';
 import OfferRequest from './components/OfferRequest';
+import Transaction from './components/Transaction';
 
 function App() {
   const [assetCode, setAssetCode] = useState("");
@@ -120,6 +121,7 @@ function App() {
                 <Route exact path="/" ><Home handleLogout={handleLogout} user={user} setAssetList={setAssetList} setOfferList={setOfferList} setAllOffers={setAllOffers} setOfferRequest={setOfferRequest} /></Route>
                 <Route exact path="/assetlist"><Assets assetList={assetList} setAssetCode={setAssetCode} /></Route>
                 <Route exact path="/offerlist"><OfferList offerList={offerList} /></Route>
+                <Route exact path="/transaction"><Transaction user={user} /></Route>
                 <Route exact path="/alloffers"><AllOffers allOffers={allOffers} user={user} /></Route>
                 <Route exact path="/offerrequest"><OfferRequest offerRequest={offerRequest} user={user} /></Route>
                 <Route exact path="/makeoffer"><MakeOffer assetCode={assetCode} user={user.email.split("@")[0]} /></Route>

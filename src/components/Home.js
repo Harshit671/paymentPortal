@@ -6,25 +6,24 @@ import { addDistributionAccount, addUser, getAllDistributionAccount, getAllUser,
 import './Hom.css'
 import { checkedAccounts } from '../Node/checkBalances';
 import { issueAccount } from '../Node/issueAssets';
-import { runTransaction } from '../Node/makeTx';
 import { useHistory } from 'react-router-dom';
 import { jointAccount } from '../Node/makeJointAccount';
-import { printFile, writeFile } from '../Node/File';
+import { printFile } from '../Node/File';
+import Navbar from './Navbar';
+import Balance from './Balance';
+import Card from './Card';
 
 const Home = (props) => {
     const history = useHistory();
     const [keys, setKeys] = useState({});
     const [user, setUser] = useState("")
     const [isAsset, setIsAsset] = useState(false);
-    const [asset, setAssets] = useState("");
+    const [assets, setAssets] = useState("");
     const [alert, setAlert] = useState(false);
     const [balance, setBalance] = useState({});
     const [distributionAccount, setDistributionAccount] = useState({});
-    const [show, setShow] = useState(false)
-    const [receiverName, setReceiverName] = useState("");
-    const [amount, setAmount] = useState("");
-    const [tradingAsset, setTradingAsset] = useState("");
-    const [file, setFile] = useState([])
+
+
 
     const { handleLogout, setAssetList, setOfferList, setAllOffers, setOfferRequest } = props
 
@@ -90,23 +89,6 @@ const Home = (props) => {
             });
     }
 
-    const makeTransaction = async () => {
-        console.log(tradingAsset, receiverName, amount);
-        const [userDetail] = await getUser(user);
-        const [receiverDetail] = await getUser(receiverName);
-        console.log(receiverDetail)
-        const ownerId = userDetail._id.toString();
-        console.log(ownerId, tradingAsset === "XLM")
-        const [distributionAccount] = tradingAsset === "XLM" ? await getUser(user) : await getDistributionAccount(tradingAsset, ownerId)
-        console.log(distributionAccount)
-        const asset = new Stellar.Asset(tradingAsset, keys.public)
-        console.log(asset);
-        const transaction = await runTransaction(distributionAccount, receiverDetail, asset, amount);
-        console.log(transaction, "transaction successfull");
-    }
-
-
-
     useEffect(async () => {
         const name = props.user.email.split("@")[0];
         setUser(name);
@@ -127,7 +109,7 @@ const Home = (props) => {
                 secret: pair.secret(),
                 public: pair.publicKey()
             })
-            const addUsers = await addUser(name, pair.secret(), pair.publicKey());
+            await addUser(name, pair.secret(), pair.publicKey());
         }
     }, [])
 
@@ -186,95 +168,35 @@ const Home = (props) => {
         history.push("/offerrequest")
     }
 
-    const handleChange = (e) => {
-        const data = e.target.files;
-        setFile(data)
-    }
-    const handleUpdate = async () => {
-        await writeFile(file);
-    }
 
     return (
         <>
             <section className="hero">
-                {/* <nav>
-                    <h2>{`Welcome ${props.user.email.split("@")[0]}`}</h2>
-                    <button onClick={() => fundAccount()} > Fund Account </button>
-                    <button onClick={() => { checkBalance(); setShow(!show) }} >{show ? "Hide Balance" : "Show Balance"}</button>
-           
-                    
-                </nav> */}
-                <nav className="navbar navbar-expand-lg navbar-light bg-light ">
-                    <a className="navbar-brand " href="#">Navbar</a>
-                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
 
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="nav navbar-nav navbar-center">
-                            <li className="nav-item active">
-                                <a className="nav-link" href="#">Home <span className="sr-only">(current)</span></a>
-                            </li>
-                            <li className="nav-item" onClick={() => getAssets()}>
-                                <a className="nav-link" href="#">Assets</a>
-                            </li>
-                            <li className="nav-item" onClick={() => fundAccount()}>
-                                <a className="nav-link" href="#">Fund Account</a>
-                            </li>
-                            <li className="nav-item" onClick={() => listOffers()} >
-                                <a className="nav-link" href="#">Offers Created</a>
-                            </li>
-                            <li className="nav-item" onClick={() => listAllOffers()}  >
-                                <a className="nav-link" href="#">Market Offers</a>
-                            </li>
-                            <li className="nav-item" onClick={() => offerRequest()}>
-                                <a className="nav-link" href="#">Transfers</a>
-                            </li>
-                            <li className="nav-item" onClick={() => jointAccountOperation()}>
-                                <a className="nav-link" href="#">Joint Account</a>
-                            </li>
-                            <li className="nav-item" onClick={() => issueAsset()}>
-                                <a className="nav-link" href="#">Issue Asset</a>
-                            </li>
-                        </ul>
-                        <div className="navbar-nav ms-auto">
-                            <button className="btn btn-outline-success my-2 my-sm-0 ml-3" onClick={() => handleLogout()} >Logout</button>
-                        </div>
-                    </div>
-                </nav>
+                <Navbar getAssets={getAssets}
 
-                <div className="balance my-5">
-                    <h2>Balance</h2><br />
+                    listOffers={listOffers}
 
-                    {
-                        balance.balances &&
-                        balance.balances.map((item, index) => {
-                            return (
-                                <div key={index}>
-                                    <h4>{index === balance.balances.length - 1 ? item.asset_type : item.asset_code}</h4>
-                                    <p>{item.balance}</p>
-                                </div>
-                            )
-                        })
-                    }
+                    offerRequest={offerRequest}
 
-                </div>
 
-                <div className="main-wrapper">
-                    <div className="mainContainer">
-                        <label><b>Sending To</b></label>
-                        <input type="text" required placeholder="Enter Receiver's Name ..." onChange={(e) => setReceiverName(e.target.value)} />
-                        <p className="errorMsg"></p>
-                        <label><b>Amount</b></label>
-                        <input type="number" required placeholder="Amount ..." onChange={(e) => setAmount(e.target.value)} />
-                        <label><b>Asset to be sent</b></label>
-                        <input type="text" required placeholder="Asset Name ..." onChange={(e) => setTradingAsset(e.target.value)} />
-                        <button className="transaction_btn" onClick={() => makeTransaction()}>Make Transaction</button>
-                        <label><b>Select Asset File</b></label>
-                        <input type="file" onChange={(e) => handleChange(e)} multiple={true} />
-                        <span><button onClick={() => handleUpdate()}>Upload</button></span>
-                    </div>
-                </div>
+                    handleLogout={handleLogout}
+                    user={user}
+                />
+
+
+                <Balance balance={balance} />
+
+                <Card jointAccountOperation={jointAccountOperation}
+                    issueAsset={issueAsset}
+                    listAllOffers={listAllOffers}
+                    fundAccount={fundAccount}
+
+                />
+
+
+
+
                 {
                     alert &&
                     <div className="alert">

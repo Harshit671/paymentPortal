@@ -9,7 +9,7 @@
 
 * {
 	
-	/* box-sizing: border-box; */
+	box-sizing: border-box !important;
 	font-family: montserrat, sans-serif;
 }
 
@@ -21,7 +21,14 @@ section {
 
 nav{
 	position: sticky;
-	top:0
+	top:0;
+}
+
+.navbar  a{
+	color : #fff !important
+}
+ul a:hover{
+	color : rgb(212, 206, 206) !important
 }
 
 input {
@@ -31,7 +38,6 @@ input {
 }
 
 body {
-	background-color: var(--light);
 	height: 100vh;
 }
 
@@ -61,12 +67,45 @@ input{
 }
 
 .balance{
-	display: flex;
 	width: 100%;
 	height: fit-content;
-	background-color: #fff;
+	background-color: rgba(247, 225, 225, 0.897);
 	justify-content: space-evenly;
 	padding-top: 20px;
+}
+
+.list{
+	display: flex;
+	justify-content: space-around;
+}
+
+
+.list p{
+	color:#888
+}
+
+.cards{
+	display: flex;
+	margin-top: 20px;
+	background-color: blanchedalmond;
+	padding: 20px
+}
+
+.card{
+	width: 100%;
+	cursor: pointer;
+	height: 100%;
+	border-radius: 50%;
+	text-align: center;
+	transition: 800ms all ease;
+}
+
+.card:hover{
+	transform: scale(1.1);
+}
+
+.bi{
+	font-size: 2rem;
 }
 
 .alert {

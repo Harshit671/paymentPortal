@@ -68,7 +68,6 @@ const OfferList = (props) => {
                                                             <td>{data.amount}</td>
                                                             <td>{data.buying.asset_type}</td>
                                                             <td><button type="button" className="btn btn-primary" onClick={() => deleteOffer(index, id)}>Delete Offer</button></td>
-                                                            {/* <td><button type="button" className="btn btn-primary" onClick={() => updateOffer(index, id)}>Update Offer</button></td> */}
                                                         </tr>
                                                     </>
                                                 )
