@@ -1,5 +1,24 @@
 {
-  "data":[
-    { "name": "Home", "link":"home", "actv":true }
+  "data": [
+    {
+      "name": "Home",
+      "link": "home",
+      "actv": true
+    },
+    {
+      "name": "Assets",
+      "link": "/assetlist",
+      "actv": true
+    },
+    {
+      "name": "Offers",
+      "link": "offerlist",
+      "actv": true
+    },
+    {
+      "name": "Transfers",
+      "link": "offerrequest",
+      "actv": true
+    }
   ]
 }

@@ -1,15 +1,34 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom';
-import './Hom.css';
+import { useStateValue } from '../context/authcontext';
+import Stellar from 'stellar-sdk'
+import '../media/home.css'
 
 const Assets = (props) => {
     const history = useHistory();
-    const { assetList, setAssetCode } = props;
+    const [{ keys }, dispatch] = useStateValue();
+    const { setAssetCode } = props;
+    const [assetList, setAssetList] = useState([])
 
     const makeOffer = (assetCode) => {
         setAssetCode(assetCode);
         history.push("./makeoffer");
     }
+
+    useEffect(() => {
+        var server = new Stellar.Server("https://horizon-testnet.stellar.org");
+        server
+            .assets()
+            .forIssuer(keys.public)
+            .call()
+            .then(function (resp) {
+                console.log(resp)
+                setAssetList(resp.records);
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+    }, [])
     return (
 
         <>

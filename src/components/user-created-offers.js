@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Stellar from 'stellar-sdk'
 import { Link } from 'react-router-dom';
-import { getDistributionAccountByPublicKey } from '../Mongo';
-import { manageBuyOffer } from '../Node/manageBuyOffer';
+import { getDistributionAccount, getDistributionAccountByPublicKey, getUser } from '../services/Mongo';
+import { manageBuyOffer } from '../services/create-newoffer';
+import { useStateValue } from '../context/authcontext';
 
-const OfferList = (props) => {
-    const { offerList } = props;
-    const [newOfferList, setNewOfferList] = useState([]);
+const OfferList = () => {
+    const [{ user }, dispatch] = useStateValue();
+    const [offerList, setOfferList] = useState([])
 
     const deleteOffer = async (index, id) => {
         console.log(index, id)
@@ -14,35 +15,46 @@ const OfferList = (props) => {
         const deleteAsset = new Stellar.Asset(offerList[index][id].selling.asset_code, offerList[index][id].selling.asset_issuer)
         const [distributionAccount] = await getDistributionAccountByPublicKey(deleteId);
         const offer = manageBuyOffer(distributionAccount, deleteAsset, "0", offerList[index][id].id, true);
-        console.log(newOfferList)
+        console.log(offerList)
         if (offerList.length > 1) {
-            const unchangedArray = newOfferList.filter((elem, delId) => delId !== index)
+            const unchangedArray = offerList.filter((elem, delId) => delId !== index)
             console.log(unchangedArray)
-            const updateOfferList = newOfferList.filter((elem, delId) => delId === index)
+            const updateOfferList = offerList.filter((elem, delId) => delId === index)
             console.log(unchangedArray)
             const updateArray = updateOfferList.filter((elem, delId) => delId !== id)
             console.log(unchangedArray)
             const finalArray = unchangedArray.splice(index, 0, updateArray)
             console.log(unchangedArray)
-            setNewOfferList(finalArray)
+            setOfferList(finalArray)
         }
         else {
-            const updateArray = newOfferList[0].filter((elem, delId) => delId !== id)
+            const updateArray = offerList[0].filter((elem, delId) => delId !== id)
             console.log([updateArray])
-            setNewOfferList([updateArray])
+            setOfferList([updateArray])
         }
         // 
     }
 
-    useEffect(() => {
-        console.log(offerList)
-        setNewOfferList(offerList)
+    useEffect(async () => {
+        const [userDetail] = await getUser(user);
+        const ownerId = userDetail._id.toString();
+        const distributionAccount = await getDistributionAccount("", ownerId)
+        const distributionKeys = distributionAccount.map(item => item.publicKey)
+        console.log(distributionKeys)
+        distributionKeys.map(async item => {
+            await fetch(`https://horizon-testnet.stellar.org/offers?seller=${item}`)
+                .then(data => data.json())
+                .then(info => {
+                    console.log(info);
+                    setOfferList((prevList) => [...prevList, info._embedded.records])
+                });
+        })
     }, [])
     return (
         <>
             <div className=" align-items-center h-100">
                 {
-                    newOfferList.length !== 0 ? (
+                    offerList.length !== 0 ? (
                         <table className="table table-hover mt-2">
                             <thead className="thead-dark">
                                 <tr className="text-center">
@@ -56,8 +68,8 @@ const OfferList = (props) => {
                             <tbody>
                                 {
 
-                                    newOfferList &&
-                                    newOfferList.map((item, index) => {
+                                    offerList &&
+                                    offerList.map((item, index) => {
                                         return (
                                             item.map((data, id) => {
                                                 return (

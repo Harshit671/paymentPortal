@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import Stellar from 'stellar-sdk'
-import { getDistributionAccount, getUser } from '../Mongo';
-import { manageBuyOffer } from '../Node/manageBuyOffer';
-import './Hom.css'
+import { getDistributionAccount, getUser } from '../services/Mongo';
+import { manageBuyOffer } from '../services/create-newoffer';
+import '../media/home.css'
+import { useStateValue } from '../context/authcontext';
 
 const Makeoffer = (props) => {
-    const { assetCode, user } = props;
+    const { assetCode } = props;
+    const [{ user }, dispatch] = useStateValue();
     const [amount, setAmount] = useState(null);
     const [buyingAsset, setBuyingAsset] = useState("");
     const makeOffer = async () => {

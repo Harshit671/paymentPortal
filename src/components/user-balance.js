@@ -1,10 +1,20 @@
-import React from 'react'
-import './Hom.css'
+import React, { useEffect, useState } from 'react'
+import { useStateValue } from '../context/authcontext';
+import '../media/home.css'
+import { checkedAccounts } from '../services/get-balance'
 
-const Balance = ({ balance }) => {
+const Balance = () => {
+    const [{ keys }, dispatch] = useStateValue();
+    const [balance, setBalance] = useState({})
+
+    useEffect(async () => {
+        console.log(keys)
+        if (keys) {
+            await checkedAccounts(keys.public).then(res => setBalance(res)).catch(err => console.log(err));
+
+        }
+    }, [keys])
     return (
-
-
         <div className="balance my-2">
             <h2 className="text-center">Balance  <span><i className="bi bi-wallet-fill"></i></span>
             </h2>

@@ -140,3 +140,7 @@ input{
     transform: translatex(-50%);
 }
 
+.nav-item a{
+	text-decoration: none;
+}
+

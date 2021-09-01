@@ -1,26 +1,28 @@
 import React, { useState } from 'react'
-import { getDistributionAccount, getUser } from '../Mongo';
-import { writeFile } from '../Node/File';
-import { runTransaction } from '../Node/makeTx';
+import { getDistributionAccount, getUser } from '../services/Mongo';
+import { writeFile } from '../services/generate-pdf';
+import { runTransaction } from '../services/make-trxn';
 import Stellar from 'stellar-sdk'
-import './Hom.css'
+import '../media/home.css'
 import { Link } from 'react-router-dom';
+import { useStateValue } from '../context/authcontext';
 
-const Transaction = ({ user }) => {
+const Transaction = () => {
+    const [{ user }, dispatch] = useStateValue();
     const [receiverName, setReceiverName] = useState("");
     const [amount, setAmount] = useState("");
     const [tradingAsset, setTradingAsset] = useState("");
     const [file, setFile] = useState([])
 
     const makeTransaction = async () => {
-        const [issuerAccount] = await getUser(user.email.split("@")[0])
+        const [issuerAccount] = await getUser(user)
         console.log(tradingAsset, receiverName, amount);
-        const [userDetail] = await getUser(user.email.split("@")[0]);
+        const [userDetail] = await getUser(user);
         const [receiverDetail] = await getUser(receiverName);
         console.log(receiverDetail)
         const ownerId = userDetail._id.toString();
         console.log(ownerId, tradingAsset === "XLM")
-        const [distributionAccount] = tradingAsset === "XLM" ? await getUser(user.email.split("@")[0]) : await getDistributionAccount(tradingAsset, ownerId)
+        const [distributionAccount] = tradingAsset === "XLM" ? await getUser(user) : await getDistributionAccount(tradingAsset, ownerId)
         console.log(distributionAccount)
         const asset = tradingAsset === "XLM" ? Stellar.Asset.native() : new Stellar.Asset(tradingAsset, issuerAccount.publicKey)
         console.log(asset);

@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import Stellar from 'stellar-sdk'
-import { deleteOfferRequest, getDistributionAccount, getUser } from '../Mongo';
-import { runOfferTransaction, runTransaction } from '../Node/makeTx';
+import { useStateValue } from '../context/authcontext';
+import { deleteOfferRequest, getDistributionAccount, getOfferRequest, getUser } from '../services/Mongo';
+import { runOfferTransaction } from '../services/make-trxn';
 
-const OfferRequest = (props) => {
-    const { offerRequest, user } = props;
+const OfferRequest = () => {
+    const [{ user, keys }, dispatch] = useStateValue();
 
+    const [offerRequest, setOfferRequest] = useState([]);
     const makeTransaction = async (buyer, assetName, amount) => {
-        const [issuerAccount] = await getUser(user.email.split("@")[0])
+        const [issuerAccount] = await getUser(user)
         const [recAccount] = await getUser(buyer);
         console.log(recAccount)
         const ownerId = issuerAccount._id.toString();
@@ -22,8 +24,9 @@ const OfferRequest = (props) => {
 
     }
 
-    useEffect(() => {
-        console.log(offerRequest)
+    useEffect(async () => {
+        const offer = await getOfferRequest(keys.public)
+        setOfferRequest(offer);
     })
 
     return (

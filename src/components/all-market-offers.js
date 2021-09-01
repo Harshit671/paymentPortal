@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
-import { addOffers, getUserByPublicKey } from '../Mongo';
+import { addOffers, getAllDistributionAccount, getUserByPublicKey } from '../services/Mongo';
+import { useStateValue } from '../context/authcontext';
 
 const AllOffers = (props) => {
-    const { allOffers, user } = props
+    // const { user } = props
+    const [{ user }, dispatch] = useStateValue();
+    const [allOffers, setAllOffers] = useState([]);
     const [apply, setApply] = useState(false);
     var count = 0;
     const addOffer = async ([data]) => {
         console.log(data)
-        await addOffers(data.selling.asset_code, data.price, data.selling.asset_issuer, user.email.split("@")[0], data.amount)
+        await addOffers(data.selling.asset_code, data.price, data.selling.asset_issuer, user, data.amount)
         setApply(true)
     }
 
-    useEffect(() => {
-        console.log(user.email.split("@")[0]);
-
-
+    useEffect(async () => {
+        setAllOffers([])
+        const users = await getAllDistributionAccount();
+        const usersPublicKey = users.map(item => item.publicKey)
+        usersPublicKey.map(async item => {
+            await fetch(`https://horizon-testnet.stellar.org/offers?seller=${item}`).then(data => data.json()).then(info => setAllOffers(prevList => [...prevList, info._embedded.records]));
+        })
     }, [])
     return (
 
