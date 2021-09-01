@@ -27,19 +27,6 @@ const Navbar = () => {
                                 </li>
                             )
                         })
-                        //                     <li className="nav-item active">
-                        //                         <a className="nav-link" href="/">Home <span className="sr-only">(current)</span></a>
-                        //                     </li>
-                        //                     <li className="nav-item" >
-                        //                         <Link to="/assetlist"><a className="nav-link" href="#">Assets</a></Link>
-                        //                     </li>
-                        //                     <li className="nav-item" >
-                        //                         <Link to="/offerlist"><a className="nav-link" href="#">Offers</a></Link>
-                        //                     </li>
-                        //                     <li className="nav-item">
-                        //                         <Link to="/offerrequest"><a className="nav-link" href="#">Transfers</a></Link>
-                        //                     </li>
-                        // }
                     }
                 </ul>
                 <div className="navbar-nav ms-auto">
